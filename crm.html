@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Follow-up Coach — CRM | CBMarketing</title>
+<meta name="description" content="Smart CRM with AI-powered follow-up coaching. Never let an opportunity die from silence."/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
+<link rel="stylesheet" href="/css/style.css"/>
+<link rel="stylesheet" href="/css/crm.css"/>
+</head>
+<body class="crm-page">
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner" style="max-width:100%;padding:0 20px">
+    <a href="/" class="logo"><img src="/img/logo.png" alt="CBMarketing" class="logo-img"/></a>
+    <div class="crm-nav-center">
+      <span class="crm-tag">CRM</span>
+      <span class="crm-nav-title">Follow-up Coach</span>
+    </div>
+    <div class="crm-nav-right">
+      <button class="btn btn-ghost btn-sm" onclick="openModal('modal-import')">⬆ Import</button>
+      <button class="btn btn-ghost btn-sm" onclick="openSettings()">⚙ Settings</button>
+      <button class="btn btn-primary btn-sm" onclick="openAddContact()">+ Add Contact</button>
+    </div>
+  </div>
+</nav>
+
+<div class="crm-layout">
+
+  <!-- Sidebar -->
+  <aside class="crm-sidebar" id="crm-sidebar">
+
+    <div class="sidebar-section">
+      <button class="sidebar-item active" data-view="dashboard">
+        <span class="sidebar-icon">◈</span>
+        Dashboard
+        <span class="sidebar-badge empty" id="badge-today">0</span>
+      </button>
+      <button class="sidebar-item" data-view="contacts">
+        <span class="sidebar-icon">◉</span>
+        All Contacts
+        <span class="sidebar-badge secondary" id="badge-total">0</span>
+      </button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Status</div>
+      <button class="sidebar-item" data-filter="active">
+        <span class="status-dot active"></span>
+        Active
+        <span class="sidebar-count" id="count-active">0</span>
+      </button>
+      <button class="sidebar-item" data-filter="replied">
+        <span class="status-dot replied"></span>
+        Replied
+        <span class="sidebar-count" id="count-replied">0</span>
+      </button>
+      <button class="sidebar-item" data-filter="meeting_booked">
+        <span class="status-dot meeting"></span>
+        Meeting Booked
+        <span class="sidebar-count" id="count-meeting">0</span>
+      </button>
+      <button class="sidebar-item" data-filter="no_response">
+        <span class="status-dot no-resp"></span>
+        No Response
+        <span class="sidebar-count" id="count-noresponse">0</span>
+      </button>
+      <button class="sidebar-item" data-filter="dead">
+        <span class="status-dot dead"></span>
+        Dead
+        <span class="sidebar-count" id="count-dead">0</span>
+      </button>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Contact Method</div>
+      <button class="sidebar-item" data-method-filter="email">
+        <span class="sidebar-icon">✉</span>
+        Email
+      </button>
+      <button class="sidebar-item" data-method-filter="sms">
+        <span class="sidebar-icon">💬</span>
+        DM / SMS
+      </button>
+      <button class="sidebar-item" data-method-filter="call">
+        <span class="sidebar-icon">📞</span>
+        Call
+      </button>
+    </div>
+
+    <div class="sidebar-stats">
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="stat-replied-rate">0%</div>
+        <div class="stat-mini-label">Reply Rate</div>
+      </div>
+      <div class="stat-mini">
+        <div class="stat-mini-value" id="stat-meeting-rate">0%</div>
+        <div class="stat-mini-label">Meeting Rate</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- Main -->
+  <main class="crm-main" id="crm-main">
+    <!-- Rendered by JS -->
+  </main>
+
+  <!-- Detail Panel -->
+  <aside class="crm-detail hidden" id="crm-detail">
+    <!-- Rendered by JS -->
+  </aside>
+
+</div>
+
+<!-- Modal: Add / Edit Contact -->
+<div class="modal-overlay" id="modal-contact" style="display:none">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modal-contact-title">Add Contact</h3>
+      <button class="modal-close" onclick="closeModal('modal-contact')">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="form-contact" autocomplete="off">
+        <input type="hidden" id="contact-id"/>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Name *</label>
+            <input type="text" id="contact-name" placeholder="Sarah Johnson" required/>
+          </div>
+          <div class="form-group">
+            <label>Company</label>
+            <input type="text" id="contact-company" placeholder="Acme Corp"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Title / Role</label>
+            <input type="text" id="contact-title" placeholder="Head of Marketing"/>
+          </div>
+          <div class="form-group">
+            <label>Preferred Contact *</label>
+            <select id="contact-method">
+              <option value="email">✉ Email</option>
+              <option value="sms">💬 DM / SMS</option>
+              <option value="call">📞 Call</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="contact-email" placeholder="sarah@acme.com"/>
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" id="contact-phone" placeholder="+1 555 000 0000"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Last Interaction Context *</label>
+          <textarea id="contact-context" rows="3" placeholder="e.g. Met at SaaS Summit — discussed automating their outreach. Interested in our AI follow-up system. Budget approved." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Next Step</label>
+          <input type="text" id="contact-nextstep" placeholder="e.g. Send case study + pricing deck"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Last Contact Date *</label>
+            <input type="date" id="contact-lastdate" required/>
+          </div>
+          <div class="form-group">
+            <label>Follow Up Every (days)</label>
+            <input type="number" id="contact-interval" value="3" min="1" max="90"/>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-contact')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Log Outcome -->
+<div class="modal-overlay" id="modal-outcome" style="display:none">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Log Outcome</h3>
+      <button class="modal-close" onclick="closeModal('modal-outcome')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>What happened after the follow-up?</label>
+        <div class="outcome-grid">
+          <button type="button" class="outcome-btn" data-outcome="replied">
+            <span>💬</span>Replied
+          </button>
+          <button type="button" class="outcome-btn" data-outcome="no_response">
+            <span>🔇</span>No Response
+          </button>
+          <button type="button" class="outcome-btn" data-outcome="meeting_booked">
+            <span>📅</span>Meeting Booked
+          </button>
+          <button type="button" class="outcome-btn" data-outcome="dead">
+            <span>💀</span>Dead
+          </button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <textarea id="outcome-note" rows="2" placeholder="Any relevant details…"></textarea>
+      </div>
+      <div class="form-group" id="next-followup-group">
+        <label>Schedule next follow-up in</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="number" id="outcome-next-days" value="3" min="1" max="90" style="width:80px"/>
+          <span style="color:var(--g2);font-size:13px">days</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-outcome')">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-save-outcome">Save Outcome</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Import -->
+<div class="modal-overlay" id="modal-import" style="display:none">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Import Contacts</h3>
+      <button class="modal-close" onclick="closeModal('modal-import')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="import-option">
+        <div class="import-icon">🔗</div>
+        <div>
+          <div class="import-name">LinkedIn CSV</div>
+          <div class="import-desc">Export from LinkedIn My Connections</div>
+        </div>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          Upload
+          <input type="file" accept=".csv" style="display:none" onchange="importCSV(this,'linkedin')"/>
+        </label>
+      </div>
+      <div class="import-option">
+        <div class="import-icon">🚀</div>
+        <div>
+          <div class="import-name">Apollo.io CSV</div>
+          <div class="import-desc">Export from Apollo contact lists</div>
+        </div>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          Upload
+          <input type="file" accept=".csv" style="display:none" onchange="importCSV(this,'apollo')"/>
+        </label>
+      </div>
+      <div class="import-option">
+        <div class="import-icon">📋</div>
+        <div>
+          <div class="import-name">Generic CSV</div>
+          <div class="import-desc">name, email, company, phone columns</div>
+        </div>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">
+          Upload
+          <input type="file" accept=".csv" style="display:none" onchange="importCSV(this,'generic')"/>
+        </label>
+      </div>
+      <div id="import-preview" style="display:none;margin-top:16px">
+        <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:8px" id="import-count"></div>
+        <div id="import-list" class="import-preview-list"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-import')">Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn-confirm-import">Import All</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Settings -->
+<div class="modal-overlay" id="modal-settings" style="display:none">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Settings</h3>
+      <button class="modal-close" onclick="closeModal('modal-settings')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Your Name (signs messages)</label>
+        <input type="text" id="settings-name" placeholder="Your Name"/>
+      </div>
+      <div class="form-group">
+        <label>Your Company</label>
+        <input type="text" id="settings-company" placeholder="CBMarketing"/>
+      </div>
+      <div class="form-group">
+        <label>Claude API Key <span style="color:var(--g3);font-weight:400;text-transform:none">(optional — for AI drafts)</span></label>
+        <input type="password" id="settings-api-key" placeholder="sk-ant-…"/>
+        <div class="form-hint">Stored in your browser only. Used to generate smarter message drafts.</div>
+      </div>
+      <div class="form-group">
+        <label class="toggle">
+          <input type="checkbox" id="settings-nudge" checked/>
+          <span class="toggle-track"></span>
+          Show 7-day no-action nudges
+        </label>
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <button type="button" class="btn btn-ghost btn-sm" style="color:#ef4444;border-color:rgba(239,68,68,.3)" onclick="if(confirm('Reset all data? This deletes all contacts.')){localStorage.clear();location.reload()}">Reset All Data</button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-settings')">Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-save-settings">Save Settings</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" style="display:none"></div>
+
+<script src="/js/crm.js"></script>
+</body>
+</html>
